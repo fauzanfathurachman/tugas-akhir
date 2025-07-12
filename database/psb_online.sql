@@ -18,9 +18,13 @@ CREATE TABLE users (
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
-    role ENUM('admin', 'operator', 'viewer') NOT NULL DEFAULT 'operator',
+    role ENUM('admin', 'super_admin', 'operator', 'viewer') NOT NULL DEFAULT 'operator',
     nama_lengkap VARCHAR(100) NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
+    status ENUM('active', 'inactive') DEFAULT 'active',
+    login_attempts INT DEFAULT 0,
+    locked_until DATETIME NULL,
+    remember_token VARCHAR(64) NULL,
+    remember_expires DATETIME NULL,
     last_login DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -28,7 +32,9 @@ CREATE TABLE users (
     INDEX idx_username (username),
     INDEX idx_email (email),
     INDEX idx_role (role),
-    INDEX idx_active (is_active)
+    INDEX idx_status (status),
+    INDEX idx_active (is_active),
+    INDEX idx_remember_token (remember_token)
 );
 
 -- =====================================================
@@ -150,6 +156,24 @@ CREATE TABLE pengaturan (
 );
 
 -- =====================================================
+-- TABLE: activity_log (Log Aktivitas User)
+-- =====================================================
+CREATE TABLE activity_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NULL,
+    action VARCHAR(50) NOT NULL,
+    ip_address VARCHAR(45) NULL,
+    user_agent TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    
+    INDEX idx_user_id (user_id),
+    INDEX idx_action (action),
+    INDEX idx_created_at (created_at)
+);
+
+-- =====================================================
 -- TABLE: backup_log (Log Backup Database)
 -- =====================================================
 CREATE TABLE backup_log (
@@ -174,10 +198,11 @@ CREATE TABLE backup_log (
 -- =====================================================
 
 -- Insert sample users (admin)
-INSERT INTO users (username, password, email, role, nama_lengkap) VALUES
-('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@psbonline.com', 'admin', 'Administrator Sistem'),
-('operator1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'operator1@psbonline.com', 'operator', 'Operator Pendaftaran'),
-('viewer1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'viewer1@psbonline.com', 'viewer', 'Viewer Data');
+INSERT INTO users (username, password, email, role, nama_lengkap, status) VALUES
+('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@psbonline.com', 'admin', 'Administrator Sistem', 'active'),
+('superadmin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'superadmin@psbonline.com', 'super_admin', 'Super Administrator', 'active'),
+('operator1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'operator1@psbonline.com', 'operator', 'Operator Pendaftaran', 'active'),
+('viewer1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'viewer1@psbonline.com', 'viewer', 'Viewer Data', 'active');
 
 -- Insert sample calon_siswa
 INSERT INTO calon_siswa (nomor_daftar, nama_lengkap, tempat_lahir, tanggal_lahir, jenis_kelamin, agama, alamat, telepon, email, asal_sekolah, nisn, nama_ayah, pekerjaan_ayah, nama_ibu, pekerjaan_ibu, penghasilan_ortu) VALUES
