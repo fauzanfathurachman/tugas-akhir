@@ -21,6 +21,13 @@
             </li>
             
             <li class="nav-item">
+                <a href="data_siswa.php" class="nav-link <?php echo $current_page === 'data-siswa' ? 'active' : ''; ?>">
+                    <i class="fas fa-users"></i>
+                    <span>Data Siswa</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
                 <a href="pendaftaran-list.php" class="nav-link <?php echo $current_page === 'pendaftaran-list' ? 'active' : ''; ?>">
                     <i class="fas fa-list"></i>
                     <span>Daftar Pendaftar</span>
