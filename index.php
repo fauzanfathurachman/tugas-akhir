@@ -24,8 +24,8 @@
                 <ul>
                     <li><a href="#beranda" class="active">Beranda</a></li>
                     <li><a href="#pendaftaran">Pendaftaran</a></li>
-                    <li><a href="#pengumuman">Pengumuman</a></li>
-                    <li><a href="#cekstatus">Cek Status</a></li>
+                    <li><a href="pengumuman.php">Pengumuman</a></li>
+                    <li><a href="cek-status.php">Cek Status</a></li>
                     <li><a href="admin/login.php" class="btn-login">Login Admin</a></li>
                 </ul>
             </nav>
@@ -41,7 +41,7 @@
             <div class="hero-text">
                 <h1>Selamat Datang di PSB <span>MTs Ulul Albab</span></h1>
                 <p>Penerimaan Siswa Baru Tahun Ajaran 2024/2025. Daftar online, dapatkan informasi lengkap, dan raih masa depan bersama Madrasah Tsanawiyah Ulul Albab!</p>
-                <a href="#pendaftaran" class="cta-btn">Daftar Sekarang</a>
+                <a href="pendaftaran.php" class="cta-btn">Daftar Sekarang</a>
             </div>
             <div class="hero-img">
                 <img src="assets/images/hero-illustration.svg" alt="Ilustrasi PSB" />
