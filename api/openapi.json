@@ -1,0 +1,73 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "PSB Online API",
+    "version": "v1",
+    "description": "API untuk registrasi, status, upload, pengumuman, dan notifikasi."
+  },
+  "servers": [
+    { "url": "/api" }
+  ],
+  "paths": {
+    "/register": {
+      "post": {
+        "summary": "Registrasi siswa baru",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"type": "object"}
+            }
+          }
+        },
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/status/{nomor_daftar}": {
+      "get": {
+        "summary": "Cek status pendaftaran",
+        "parameters": [
+          { "name": "nomor_daftar", "in": "path", "required": true, "schema": {"type": "string"} }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/upload": {
+      "post": {
+        "summary": "Upload berkas (auth)",
+        "security": [{"bearerAuth":[]}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {"type": "object"}
+            }
+          }
+        },
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/pengumuman": {
+      "get": {
+        "summary": "List pengumuman",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "summary": "List notifikasi (auth)",
+        "security": [{"bearerAuth":[]}],
+        "responses": { "200": { "description": "OK" } }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
