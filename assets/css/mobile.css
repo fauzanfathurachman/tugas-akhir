@@ -1,0 +1,168 @@
+/* assets/css/mobile.css - Mobile-first responsive CSS */
+
+html, body {
+  font-size: 16px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f9f9f9;
+  color: #222;
+  margin: 0;
+  padding: 0;
+}
+
+/* Mobile navigation hamburger */
+.mobile-nav {
+  display: flex;
+  align-items: center;
+  background: #2563eb;
+  color: #fff;
+  padding: 0.75rem 1rem;
+}
+.hamburger {
+  width: 44px; height: 44px;
+  display: flex; flex-direction: column; justify-content: center;
+  cursor: pointer;
+  margin-right: 1rem;
+}
+.hamburger span {
+  display: block;
+  height: 4px;
+  width: 28px;
+  background: #fff;
+  margin: 4px 0;
+  border-radius: 2px;
+  transition: 0.3s;
+}
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  position: absolute;
+  top: 56px; left: 0; right: 0;
+  z-index: 100;
+}
+.mobile-menu.open { display: flex; }
+
+/* Touch-friendly buttons */
+button, .btn, input[type=submit] {
+  min-width: 44px; min-height: 44px;
+  font-size: 1rem;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  margin: 0.5rem 0;
+  transition: background 0.2s;
+}
+button:active, .btn:active { background: #1e40af; }
+
+/* Optimized forms */
+input, select, textarea {
+  width: 100%;
+  font-size: 1.1rem;
+  padding: 1rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+}
+label { font-size: 1rem; margin-bottom: 0.25rem; display: block; }
+
+/* Table responsive */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+th, td {
+  padding: 0.75rem 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+/* Floating Action Button */
+.fab {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  width: 56px; height: 56px;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+  z-index: 200;
+  cursor: pointer;
+}
+
+/* Accordion/collapse */
+.accordion {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.accordion-header {
+  background: #e0e7ff;
+  padding: 1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+.accordion-content {
+  display: none;
+  background: #fff;
+  padding: 1rem;
+}
+.accordion.open .accordion-content { display: block; }
+
+/* Carousel/slider swipe (basic) */
+.carousel {
+  overflow: hidden;
+  position: relative;
+}
+.carousel-track {
+  display: flex;
+  transition: transform 0.3s;
+}
+.carousel-slide {
+  min-width: 100vw;
+  box-sizing: border-box;
+}
+
+/* Lazy loading images */
+img[data-src] {
+  opacity: 0.7;
+  filter: blur(2px);
+  transition: opacity 0.3s, filter 0.3s;
+}
+img[data-src].loaded {
+  opacity: 1;
+  filter: none;
+}
+
+/* Dark mode toggle */
+body.dark {
+  background: #18181b;
+  color: #f3f4f6;
+}
+body.dark .mobile-nav { background: #111827; }
+body.dark .mobile-menu { background: #23272f; color: #f3f4f6; }
+body.dark .fab { background: #f59e42; color: #18181b; }
+body.dark input, body.dark select, body.dark textarea {
+  background: #23272f; color: #f3f4f6; border-color: #374151;
+}
+body.dark th, body.dark td { border-color: #374151; }
+
+/* Media queries for larger screens */
+@media (min-width: 600px) {
+  .mobile-nav, .mobile-menu { display: none; }
+  .desktop-nav { display: flex; }
+}
+@media (min-width: 900px) {
+  html { font-size: 18px; }
+}
+/* Minified for fast loading */
