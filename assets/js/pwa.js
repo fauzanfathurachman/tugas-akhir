@@ -19,6 +19,9 @@ document.getElementById('addToHomeBtn')?.addEventListener('click', () => {
     deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
   }
 });
+// Offline page fallback
+window.addEventListener('offline', () => {
+  alert('Anda sedang offline. Beberapa fitur mungkin tidak tersedia.');
 });
 // IndexedDB for offline data (example)
 // ...

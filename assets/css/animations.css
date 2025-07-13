@@ -1,0 +1,140 @@
+/* assets/css/animations.css - Animations & loading states */
+
+/* Skeleton loading */
+.skeleton {
+  background: linear-gradient(90deg, #f3f3f3 25%, #ececec 37%, #f3f3f3 63%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.2s ease-in-out infinite;
+  border-radius: 6px;
+}
+@keyframes skeleton-loading {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+.skeleton-text { height: 1em; width: 100%; margin-bottom: 0.5em; }
+.skeleton-card { height: 120px; width: 100%; margin-bottom: 1em; }
+.skeleton-table-row { height: 2em; width: 100%; margin-bottom: 0.5em; }
+
+/* Loading spinner */
+.spinner {
+  width: 48px; height: 48px;
+  border: 5px solid #e5e7eb;
+  border-top: 5px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 2rem auto;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Progress bar */
+.progress-bar {
+  width: 100%; height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+.progress-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
+  width: 0;
+  transition: width 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+/* Fade in/out */
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 0.7s forwards;
+}
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+.fade-out {
+  opacity: 1;
+  animation: fadeOut 0.5s forwards;
+}
+@keyframes fadeOut {
+  to { opacity: 0; }
+}
+
+/* Page transitions */
+.page-enter {
+  opacity: 0; transform: translateY(30px);
+  animation: pageIn 0.5s forwards;
+}
+@keyframes pageIn {
+  to { opacity: 1; transform: none; }
+}
+.page-leave {
+  opacity: 1;
+  animation: pageOut 0.4s forwards;
+}
+@keyframes pageOut {
+  to { opacity: 0; transform: translateY(-30px); }
+}
+
+/* Hover effects */
+.btn, button, .card, .fab {
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.btn:hover, button:hover, .card:hover, .fab:hover {
+  box-shadow: 0 4px 16px rgba(37,99,235,0.12);
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* Success/Error animations */
+@keyframes popSuccess {
+  0% { transform: scale(0.8); background: #d1fae5; }
+  60% { transform: scale(1.1); background: #34d399; }
+  100% { transform: scale(1); background: #10b981; }
+}
+@keyframes popError {
+  0% { transform: scale(0.8); background: #fee2e2; }
+  60% { transform: scale(1.1); background: #f87171; }
+  100% { transform: scale(1); background: #ef4444; }
+}
+.success-anim {
+  animation: popSuccess 0.7s;
+}
+.error-anim {
+  animation: popError 0.7s;
+}
+
+/* Parallax effect */
+.parallax {
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Micro-interactions for buttons */
+.btn:active, button:active {
+  transform: scale(0.97);
+}
+
+/* Animated icons (example) */
+.animated-icon {
+  display: inline-block;
+  animation: icon-bounce 1.2s infinite;
+}
+@keyframes icon-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Scroll-triggered animation */
+.scroll-anim {
+  opacity: 0; transform: translateY(40px);
+  transition: opacity 0.6s, transform 0.6s;
+}
+.scroll-anim.visible {
+  opacity: 1; transform: none;
+}
+
+/* Performance: use will-change for GPU acceleration */
+.animated, .fade-in, .fade-out, .page-enter, .page-leave, .scroll-anim {
+  will-change: opacity, transform;
+}
