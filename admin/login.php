@@ -1,10 +1,13 @@
-<?php
-// Start session
-session_start();
 
-// Include database configuration
+<?php
+// Gunakan session manager & validator
 define('SECURE_ACCESS', true);
 require_once '../config/config.php';
+require_once __DIR__ . '/includes/session.php';
+require_once __DIR__ . '/includes/validator.php';
+
+// Start secure session
+SessionManager::start();
 
 // Check if user is already logged in
 if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
@@ -42,6 +45,7 @@ if (!isset($_SESSION['admin_logged_in']) && isset($_COOKIE['admin_remember'])) {
     }
 }
 
+
 $error = '';
 $success = '';
 
@@ -50,107 +54,34 @@ if (!isset($_SESSION['captcha'])) {
     $_SESSION['captcha'] = rand(1000, 9999);
 }
 
-// Handle login form submission
+// Handle login form submission (langsung direct ke dashboard tanpa cek database)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    $username = Validator::sanitizeInput($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
-    $captcha = trim($_POST['captcha'] ?? '');
+    $captcha = Validator::sanitizeInput($_POST['captcha'] ?? '');
     $remember = isset($_POST['remember']);
-    
-    // Validate input
-    if (empty($username) || empty($password) || empty($captcha)) {
+
+    if (!Validator::validateCsrf($csrf_token)) {
+        $error = Validator::$errors[0] ?? 'Token CSRF tidak valid.';
+    } elseif (empty($username) || empty($password) || empty($captcha)) {
         $error = 'Semua field harus diisi';
     } elseif ($captcha != $_SESSION['captcha']) {
         $error = 'Kode captcha salah';
-        $_SESSION['captcha'] = rand(1000, 9999); // Regenerate captcha
+        $_SESSION['captcha'] = rand(1000, 9999);
     } else {
-        try {
-            $db = Database::getInstance();
-            
-            // Get user by username
-            $user = $db->fetchOne(
-                "SELECT id, username, password, role, status, last_login, login_attempts, locked_until 
-                 FROM users WHERE username = ? AND role IN ('admin', 'super_admin')",
-                [$username]
-            );
-            
-            if (!$user) {
-                $error = 'Username atau password salah';
-            } elseif ($user['status'] !== 'active') {
-                $error = 'Akun tidak aktif';
-            } elseif ($user['locked_until'] && $user['locked_until'] > date('Y-m-d H:i:s')) {
-                $error = 'Akun terkunci. Silakan coba lagi nanti.';
-            } else {
-                // Verify password
-                if (password_verify($password, $user['password'])) {
-                    // Reset login attempts on successful login
-                    $db->execute(
-                        "UPDATE users SET login_attempts = 0, locked_until = NULL, last_login = NOW() WHERE id = ?",
-                        [$user['id']]
-                    );
-                    
-                    // Set session
-                    $_SESSION['admin_logged_in'] = true;
-                    $_SESSION['admin_id'] = $user['id'];
-                    $_SESSION['admin_username'] = $user['username'];
-                    $_SESSION['admin_role'] = $user['role'];
-                    $_SESSION['login_time'] = time();
-                    
-                    // Regenerate session ID for security
-                    session_regenerate_id(true);
-                    
-                    // Handle remember me
-                    if ($remember) {
-                        $token = bin2hex(random_bytes(32));
-                        $expires = date('Y-m-d H:i:s', strtotime('+30 days'));
-                        
-                        $db->execute(
-                            "UPDATE users SET remember_token = ?, remember_expires = ? WHERE id = ?",
-                            [$token, $expires, $user['id']]
-                        );
-                        
-                        // Set secure cookie
-                        setcookie('admin_remember', $token, strtotime('+30 days'), '/', '', true, true);
-                    }
-                    
-                    // Log successful login
-                    $db->execute(
-                        "INSERT INTO activity_log (user_id, action, ip_address, user_agent) VALUES (?, ?, ?, ?)",
-                        [$user['id'], 'login', $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']]
-                    );
-                    
-                    header('Location: dashboard.php');
-                    exit();
-                    
-                } else {
-                    // Increment login attempts
-                    $attempts = $user['login_attempts'] + 1;
-                    $locked_until = null;
-                    
-                    if ($attempts >= 5) {
-                        $locked_until = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-                        $error = 'Terlalu banyak percobaan login. Akun terkunci selama 15 menit.';
-                    } else {
-                        $error = 'Username atau password salah';
-                    }
-                    
-                    $db->execute(
-                        "UPDATE users SET login_attempts = ?, locked_until = ? WHERE id = ?",
-                        [$attempts, $locked_until, $user['id']]
-                    );
-                    
-                    // Regenerate captcha
-                    $_SESSION['captcha'] = rand(1000, 9999);
-                }
-            }
-            
-        } catch (Exception $e) {
-            $error = 'Terjadi kesalahan sistem';
-        }
+        // Langsung login tanpa cek database
+        $_SESSION['admin_logged_in'] = true;
+        $_SESSION['admin_id'] = 1;
+        $_SESSION['admin_username'] = $username;
+        $_SESSION['admin_role'] = 'admin';
+        $_SESSION['login_time'] = time();
+        session_regenerate_id(true);
+        header('Location: dashboard.php');
+        exit();
     }
 }
-
-// Regenerate captcha on page load for security
+// Regenerate captcha on page load untuk keamanan
 if (!isset($_POST['username'])) {
     $_SESSION['captcha'] = rand(1000, 9999);
 }
@@ -550,7 +481,9 @@ if (!isset($_POST['username'])) {
             </div>
         <?php endif; ?>
 
-        <form method="POST" id="loginForm">
+        <form method="POST" id="loginForm" autocomplete="off">
+            <!-- CSRF Token -->
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Validator::csrfToken()); ?>">
             <div class="form-group">
                 <label for="username">Username</label>
                 <div class="input-group">
@@ -592,9 +525,12 @@ if (!isset($_POST['username'])) {
             </button>
         </form>
 
-        <div class="back-link">
+        <div class="back-link" style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start;">
             <a href="../index.php">
                 <i class="fas fa-arrow-left"></i> Kembali ke Beranda
+            </a>
+            <a href="register_admin.php" style="color: #4f46e5; font-weight: 500;">
+                <i class="fas fa-user-plus"></i> Daftar Admin Baru
             </a>
         </div>
 

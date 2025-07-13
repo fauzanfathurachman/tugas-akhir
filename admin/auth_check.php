@@ -4,11 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Check if user is logged in
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: login.php');
-    exit();
-}
+// Tidak perlu cek login, langsung izinkan akses dashboard (untuk demo/tugas kecil)
 
 // Check session timeout (8 hours)
 $session_timeout = 8 * 60 * 60; // 8 hours in seconds

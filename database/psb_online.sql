@@ -33,7 +33,6 @@ CREATE TABLE users (
     INDEX idx_email (email),
     INDEX idx_role (role),
     INDEX idx_status (status),
-    INDEX idx_active (is_active),
     INDEX idx_remember_token (remember_token)
 );
 
@@ -197,65 +196,17 @@ CREATE TABLE backup_log (
 -- SAMPLE DATA
 -- =====================================================
 
--- Insert sample users (admin)
-INSERT INTO users (username, password, email, role, nama_lengkap, status) VALUES
-('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@psbonline.com', 'admin', 'Administrator Sistem', 'active'),
-('superadmin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'superadmin@psbonline.com', 'super_admin', 'Super Administrator', 'active'),
-('operator1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'operator1@psbonline.com', 'operator', 'Operator Pendaftaran', 'active'),
-('viewer1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'viewer1@psbonline.com', 'viewer', 'Viewer Data', 'active');
 
--- Insert sample calon_siswa
-INSERT INTO calon_siswa (nomor_daftar, nama_lengkap, tempat_lahir, tanggal_lahir, jenis_kelamin, agama, alamat, telepon, email, asal_sekolah, nisn, nama_ayah, pekerjaan_ayah, nama_ibu, pekerjaan_ibu, penghasilan_ortu) VALUES
-('PSB-2024-001', 'Ahmad Fauzan', 'Jakarta', '2008-03-15', 'L', 'Islam', 'Jl. Sudirman No. 123, Jakarta Pusat', '081234567890', 'ahmad@email.com', 'SMP Negeri 1 Jakarta', '1234567890', 'Budi Santoso', 'Wiraswasta', 'Siti Aminah', 'Guru', 5000000.00),
-('PSB-2024-002', 'Siti Nurhaliza', 'Bandung', '2008-07-22', 'P', 'Islam', 'Jl. Asia Afrika No. 45, Bandung', '081234567891', 'siti@email.com', 'SMP Negeri 2 Bandung', '1234567891', 'Ahmad Hidayat', 'PNS', 'Nurul Hidayah', 'Dokter', 8000000.00),
-('PSB-2024-003', 'Budi Prasetyo', 'Surabaya', '2008-01-10', 'L', 'Islam', 'Jl. Pemuda No. 67, Surabaya', '081234567892', 'budi@email.com', 'SMP Negeri 3 Surabaya', '1234567892', 'Sukarno', 'Pedagang', 'Sukarni', 'Ibu Rumah Tangga', 3000000.00),
-('PSB-2024-004', 'Dewi Sartika', 'Medan', '2008-11-05', 'P', 'Islam', 'Jl. Gatot Subroto No. 89, Medan', '081234567893', 'dewi@email.com', 'SMP Negeri 4 Medan', '1234567893', 'Raden Mas', 'Pengacara', 'Raden Ayu', 'Dosen', 12000000.00),
-('PSB-2024-005', 'Rizki Pratama', 'Semarang', '2008-05-18', 'L', 'Islam', 'Jl. Pandanaran No. 12, Semarang', '081234567894', 'rizki@email.com', 'SMP Negeri 5 Semarang', '1234567894', 'Pratama Jaya', 'Arsitek', 'Sari Indah', 'Akuntan', 9000000.00);
 
--- Insert sample pendaftaran
-INSERT INTO pendaftaran (calon_siswa_id, tahun_ajaran, jalur_pendaftaran, pilihan_jurusan, nilai_un_matematika, nilai_un_ipa, nilai_un_bindo, nilai_un_bing, rata_rata_un, prestasi_akademik, prestasi_non_akademik, status_pendaftaran, tanggal_submit) VALUES
-(1, '2024/2025', 'reguler', 'IPA', 85.50, 88.00, 90.00, 87.50, 87.75, 'Juara 1 Olimpiade Matematika Tingkat Kota', 'Juara 2 Lomba Robotik', 'submitted', '2024-01-15 10:30:00'),
-(2, '2024/2025', 'prestasi', 'IPS', 82.00, 85.50, 92.00, 89.00, 87.13, 'Juara 1 Olimpiade Sains Tingkat Provinsi', 'Juara 1 Lomba Debat', 'submitted', '2024-01-16 14:20:00'),
-(3, '2024/2025', 'reguler', 'IPA', 78.50, 80.00, 85.00, 82.50, 81.50, 'Juara 3 Olimpiade Matematika Tingkat Sekolah', 'Anggota OSIS', 'submitted', '2024-01-17 09:15:00'),
-(4, '2024/2025', 'afirmasi', 'IPS', 75.00, 78.50, 88.00, 85.00, 81.63, 'Peserta Olimpiade Sains', 'Anggota Pramuka', 'submitted', '2024-01-18 11:45:00'),
-(5, '2024/2025', 'reguler', 'IPA', 88.00, 90.50, 92.00, 89.50, 90.00, 'Juara 2 Olimpiade Matematika Tingkat Kota', 'Juara 1 Lomba Cerdas Cermat', 'submitted', '2024-01-19 16:30:00');
 
--- Insert sample pengumuman
-INSERT INTO pengumuman (judul, konten, jenis, tanggal_publish, status, created_by) VALUES
-('Pembukaan Pendaftaran Siswa Baru Tahun Ajaran 2024/2025', 'Diumumkan kepada seluruh calon siswa dan orang tua bahwa pendaftaran siswa baru untuk tahun ajaran 2024/2025 telah dibuka. Pendaftaran dapat dilakukan secara online melalui website resmi sekolah.', 'umum', '2024-01-01 08:00:00', 'published', 1),
-('Jadwal Tes Seleksi Penerimaan Siswa Baru', 'Tes seleksi akan dilaksanakan pada tanggal 15 Februari 2024. Peserta diharapkan hadir 30 menit sebelum jadwal tes yang telah ditentukan.', 'seleksi', '2024-02-01 10:00:00', 'published', 1),
-('Pengumuman Hasil Seleksi Penerimaan Siswa Baru', 'Hasil seleksi penerimaan siswa baru tahun ajaran 2024/2025 akan diumumkan pada tanggal 1 Maret 2024 pukul 10:00 WIB melalui website sekolah dan papan pengumuman.', 'pengumuman', '2024-02-25 14:00:00', 'published', 1),
-('Informasi Daftar Ulang Siswa yang Diterima', 'Bagi siswa yang dinyatakan lulus seleksi, daftar ulang dapat dilakukan pada tanggal 5-10 Maret 2024. Persyaratan dan jadwal lengkap dapat dilihat di website sekolah.', 'pengumuman', '2024-03-01 09:00:00', 'published', 1);
 
--- Insert sample pengaturan
-INSERT INTO pengaturan (nama_setting, nilai, deskripsi, kategori) VALUES
-('nama_sekolah', 'SMAN 1 Jakarta', 'Nama lengkap sekolah', 'sistem'),
-('alamat_sekolah', 'Jl. Sudirman No. 1, Jakarta Pusat', 'Alamat lengkap sekolah', 'sistem'),
-('telepon_sekolah', '021-1234567', 'Nomor telepon sekolah', 'sistem'),
-('email_sekolah', 'info@sman1jakarta.sch.id', 'Email resmi sekolah', 'sistem'),
-('website_sekolah', 'https://www.sman1jakarta.sch.id', 'Website resmi sekolah', 'sistem'),
-('tahun_ajaran_aktif', '2024/2025', 'Tahun ajaran yang sedang aktif', 'pendaftaran'),
-('tanggal_buka_pendaftaran', '2024-01-01', 'Tanggal pembukaan pendaftaran', 'pendaftaran'),
-('tanggal_tutup_pendaftaran', '2024-01-31', 'Tanggal penutupan pendaftaran', 'pendaftaran'),
-('kuota_reguler', '200', 'Kuota pendaftar jalur reguler', 'pendaftaran'),
-('kuota_prestasi', '50', 'Kuota pendaftar jalur prestasi', 'pendaftaran'),
-('kuota_afirmasi', '30', 'Kuota pendaftar jalur afirmasi', 'pendaftaran'),
-('kuota_perpindahan', '20', 'Kuota pendaftar jalur perpindahan', 'pendaftaran'),
-('minimal_nilai_un', '70.00', 'Nilai minimal UN untuk pendaftaran', 'seleksi'),
-('bobot_nilai_un', '60', 'Bobot nilai UN dalam seleksi (persen)', 'seleksi'),
-('bobot_prestasi', '40', 'Bobot prestasi dalam seleksi (persen)', 'seleksi'),
-('smtp_host', 'smtp.gmail.com', 'SMTP host untuk pengiriman email', 'email'),
-('smtp_port', '587', 'SMTP port untuk pengiriman email', 'email'),
-('smtp_username', 'noreply@psbonline.com', 'SMTP username', 'email'),
-('smtp_password', 'password123', 'SMTP password', 'email'),
-('maintenance_mode', 'false', 'Mode maintenance sistem', 'sistem');
 
--- Insert sample backup_log
-INSERT INTO backup_log (nama_file, ukuran, tanggal_backup, status, keterangan, created_by) VALUES
-('backup_psb_online_2024_01_01.sql', 1048576, '2024-01-01 23:00:00', 'success', 'Backup otomatis harian', 1),
-('backup_psb_online_2024_01_02.sql', 1052672, '2024-01-02 23:00:00', 'success', 'Backup otomatis harian', 1),
-('backup_psb_online_2024_01_03.sql', 1060864, '2024-01-03 23:00:00', 'success', 'Backup otomatis harian', 1),
-('backup_psb_online_manual_2024_01_15.sql', 1073152, '2024-01-15 14:30:00', 'success', 'Backup manual sebelum update sistem', 1);
+
+
+
+
+
+
 
 -- =====================================================
 -- ADDITIONAL INDEXES FOR PERFORMANCE

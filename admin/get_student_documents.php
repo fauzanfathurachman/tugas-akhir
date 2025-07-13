@@ -1,6 +1,6 @@
 <?php
 require_once '../config/database.php';
-require_once 'auth_check.php';
+// Tidak perlu cek login, langsung izinkan akses (untuk demo/tugas kecil)
 
 header('Content-Type: application/json');
 

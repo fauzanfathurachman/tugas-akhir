@@ -49,7 +49,7 @@ session_destroy();
 // Clear remember me cookie
 setcookie('admin_remember', '', time() - 3600, '/', '', true, true);
 
-// Redirect to login page
-header('Location: login.php');
+// Redirect to main page for demo
+header('Location: ../index.php');
 exit();
 ?> 

@@ -5,10 +5,6 @@
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/sidebar.php';
 require_once __DIR__ . '/../config/database.php';
-// Pastikan PhpSpreadsheet sudah diinstall dan autoload
-require_once __DIR__ . '/../../vendor/autoload.php';
-
-use PhpOffice\PhpSpreadsheet\IOFactory;
 
 // ... Logic backend akan ditambahkan di bawah ...
 ?>

@@ -299,8 +299,8 @@ foreach ($directories as $directory) {
     }
 }
 
-// Start session if not already started
-if (session_status() === PHP_SESSION_NONE) {
+// Start session if not already started, and only if headers not sent
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     session_name(config('SESSION_NAME', 'PSB_SESSION'));
     session_set_cookie_params([
         'lifetime' => config('SESSION_LIFETIME', 3600),

@@ -2,7 +2,7 @@
 // Include required files
 define('SECURE_ACCESS', true);
 require_once '../config/config.php';
-require_once 'auth_check.php';
+// Tidak perlu cek login, langsung izinkan akses (untuk demo/tugas kecil)
 
 // Set page variables
 $page_title = 'Verifikasi Berkas';
@@ -12,20 +12,13 @@ $current_page = 'verifikasi';
 $status_filter = $_GET['status'] ?? 'pending';
 $search = $_GET['search'] ?? '';
 
-// Get database instance
-$db = Database::getInstance();
-
-// Get verification statistics
-try {
-    $stats = [
-        'pending' => $db->fetchValue("SELECT COUNT(*) FROM calon_siswa WHERE status_verifikasi = 'pending'"),
-        'verified' => $db->fetchValue("SELECT COUNT(*) FROM calon_siswa WHERE status_verifikasi = 'verified'"),
-        'rejected' => $db->fetchValue("SELECT COUNT(*) FROM calon_siswa WHERE status_verifikasi = 'rejected'"),
-        'total' => $db->fetchValue("SELECT COUNT(*) FROM calon_siswa")
-    ];
-} catch (Exception $e) {
-    $stats = ['pending' => 0, 'verified' => 0, 'rejected' => 0, 'total' => 0];
-}
+// DEMO MODE: Data statistik dummy
+$stats = [
+    'pending' => 2,
+    'verified' => 5,
+    'rejected' => 1,
+    'total' => 8
+];
 
 // Include header
 include 'includes/header.php';

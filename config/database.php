@@ -480,8 +480,9 @@ class Database
     
     /**
      * Prevent unserialization of the instance
+     * (magic method must be public for PHP 8+)
      */
-    private function __wakeup() {}
+    public function __wakeup() {}
 }
 
 /**

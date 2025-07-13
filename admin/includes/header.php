@@ -310,11 +310,11 @@ require_once 'auth_check.php';
                 
                 <div class="user-menu">
                     <div class="user-avatar">
-                        <?php echo strtoupper(substr($admin_username, 0, 1)); ?>
+                        <?php echo isset($admin_username) && $admin_username !== null && $admin_username !== '' ? strtoupper(substr($admin_username, 0, 1)) : ''; ?>
                     </div>
                     <div class="user-info">
-                        <div class="user-name"><?php echo htmlspecialchars($admin_username); ?></div>
-                        <div class="user-role"><?php echo ucfirst($admin_role); ?></div>
+                        <div class="user-name"><?php echo htmlspecialchars($admin_username ?? ''); ?></div>
+                        <div class="user-role"><?php echo $admin_role ? ucfirst($admin_role) : ''; ?></div>
                     </div>
                     <i class="fas fa-chevron-down"></i>
                     

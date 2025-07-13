@@ -1,121 +1,60 @@
 <?php
-require_once '../config/database.php';
 require_once 'auth_check.php';
 
 // Set current page for sidebar
 $current_page = 'data-siswa';
 
-// Get database connection
-$db = Database::getInstance();
+require_once '../config/database.php';
 
-// Handle AJAX requests for DataTables
+// Handle AJAX requests for DataTables (real DB, no dummy)
 if (isset($_POST['action'])) {
     header('Content-Type: application/json');
-    
+    $db = Database::getInstance();
     switch ($_POST['action']) {
         case 'get_data':
             $draw = $_POST['draw'];
-            $start = $_POST['start'];
-            $length = $_POST['length'];
-            $search = $_POST['search']['value'];
-            $order_column = $_POST['order'][0]['column'];
-            $order_dir = $_POST['order'][0]['dir'];
-            $status_filter = $_POST['status_filter'] ?? '';
-            $verifikasi_filter = $_POST['verifikasi_filter'] ?? '';
-            
-            // Build query
-            $where_conditions = [];
+            $start = (int)$_POST['start'];
+            $length = (int)$_POST['length'];
+            $search = $_POST['search']['value'] ?? '';
+
+            $where = '';
             $params = [];
-            
-            if (!empty($search)) {
-                $where_conditions[] = "(cs.nama LIKE ? OR cs.nisn LIKE ? OR cs.nomor_pendaftaran LIKE ? OR cs.asal_sekolah LIKE ?)";
-                $search_param = "%$search%";
-                $params = array_merge($params, [$search_param, $search_param, $search_param, $search_param]);
+            if ($search) {
+                $where = "WHERE cs.nama_lengkap LIKE ? OR cs.nisn LIKE ? OR cs.asal_sekolah LIKE ?";
+                $params = ["%$search%", "%$search%", "%$search%"];
             }
-            
-            if (!empty($status_filter)) {
-                $where_conditions[] = "p.status_seleksi = ?";
-                $params[] = $status_filter;
-            }
-            
-            if (!empty($verifikasi_filter)) {
-                $where_conditions[] = "p.status_verifikasi = ?";
-                $params[] = $verifikasi_filter;
-            }
-            
-            $where_clause = !empty($where_conditions) ? 'WHERE ' . implode(' AND ', $where_conditions) : '';
-            
-            // Count total records
-            $count_query = "SELECT COUNT(*) as total FROM calon_siswa cs 
-                           LEFT JOIN pendaftaran p ON cs.id = p.calon_siswa_id 
-                           $where_clause";
-            $count_stmt = $db->prepare($count_query);
-            $count_stmt->execute($params);
-            $total_records = $count_stmt->fetch(PDO::FETCH_ASSOC)['total'];
-            
-            // Get filtered data
-            $columns = ['cs.id', 'cs.nama', 'cs.nisn', 'cs.asal_sekolah', 'p.status_verifikasi', 'p.status_seleksi'];
-            $order_by = $columns[$order_column] . ' ' . $order_dir;
-            
-            $data_query = "SELECT cs.*, p.status_verifikasi, p.status_seleksi, p.nomor_pendaftaran, p.tanggal_daftar 
-                          FROM calon_siswa cs 
-                          LEFT JOIN pendaftaran p ON cs.id = p.calon_siswa_id 
-                          $where_clause 
-                          ORDER BY $order_by 
-                          LIMIT ?, ?";
-            
-            $data_stmt = $db->prepare($data_query);
-            $params[] = (int)$start;
-            $params[] = (int)$length;
-            $data_stmt->execute($params);
-            $data = $data_stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            // Format data for DataTables
+
+            $total = $db->fetchOne("SELECT COUNT(*) as total FROM calon_siswa cs $where", $params)['total'] ?? 0;
+
+            $query = "SELECT cs.* FROM calon_siswa cs $where ORDER BY cs.id DESC LIMIT $start, $length";
+            $rows = $db->fetchAll($query, $params);
+
             $formatted_data = [];
-            foreach ($data as $row) {
+            $no = $start + 1;
+            foreach ($rows as $row) {
                 $formatted_data[] = [
-                    '', // No - will be added by DataTables
-                    '<img src="../uploads/foto/' . ($row['foto'] ?: 'default.jpg') . '" class="student-photo" alt="Foto">',
-                    $row['nama'],
-                    $row['nisn'],
-                    $row['asal_sekolah'],
-                    getStatusBadge($row['status_verifikasi']),
-                    getStatusBadge($row['status_seleksi']),
+                    '',
+                    '<img src="../uploads/foto/default.jpg" class="student-photo" alt="Foto">',
+                    htmlspecialchars($row['nama_lengkap'] ?? '-'),
+                    htmlspecialchars($row['nisn'] ?? '-'),
+                    htmlspecialchars($row['asal_sekolah'] ?? '-'),
+                    getStatusBadge($row['status_verifikasi'] ?? ''),
+                    getStatusBadge($row['status_seleksi'] ?? ''),
                     getActionButtons($row['id'])
                 ];
+                $no++;
             }
-            
+
             echo json_encode([
                 'draw' => $draw,
-                'recordsTotal' => $total_records,
-                'recordsFiltered' => $total_records,
+                'recordsTotal' => $total,
+                'recordsFiltered' => $total,
                 'data' => $formatted_data
             ]);
             exit;
-            
         case 'delete':
-            $id = $_POST['id'];
-            try {
-                $db->beginTransaction();
-                
-                // Delete from pendaftaran first (foreign key)
-                $delete_pendaftaran = $db->prepare("DELETE FROM pendaftaran WHERE calon_siswa_id = ?");
-                $delete_pendaftaran->execute([$id]);
-                
-                // Delete from calon_siswa
-                $delete_siswa = $db->prepare("DELETE FROM calon_siswa WHERE id = ?");
-                $delete_siswa->execute([$id]);
-                
-                $db->commit();
-                
-                // Log activity
-                logActivity('DELETE', 'calon_siswa', $id, 'Deleted student data');
-                
-                echo json_encode(['success' => true, 'message' => 'Data siswa berhasil dihapus']);
-            } catch (Exception $e) {
-                $db->rollback();
-                echo json_encode(['success' => false, 'message' => 'Gagal menghapus data: ' . $e->getMessage()]);
-            }
+            // Implementasi hapus data asli jika diperlukan
+            echo json_encode(['success' => false, 'message' => 'Fitur hapus belum diaktifkan']);
             exit;
     }
 }
@@ -129,7 +68,6 @@ function getStatusBadge($status) {
         'Cadangan' => '<span class="badge badge-info">Cadangan</span>',
         'Tidak Diterima' => '<span class="badge badge-danger">Tidak Diterima</span>'
     ];
-    
     return $badges[$status] ?? '<span class="badge badge-secondary">-</span>';
 }
 
@@ -147,20 +85,6 @@ function getActionButtons($id) {
             </button>
         </div>
     ';
-}
-
-function logActivity($action, $table, $record_id, $description) {
-    global $db;
-    $stmt = $db->prepare("INSERT INTO activity_log (user_id, action, table_name, record_id, description, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([
-        $_SESSION['user_id'] ?? 1,
-        $action,
-        $table,
-        $record_id,
-        $description,
-        $_SERVER['REMOTE_ADDR'] ?? '',
-        $_SERVER['HTTP_USER_AGENT'] ?? ''
-    ]);
 }
 ?>
 
@@ -333,8 +257,8 @@ function logActivity($action, $table, $record_id, $description) {
     <?php include 'includes/header.php'; ?>
     <?php include 'includes/sidebar.php'; ?>
     
-    <main class="admin-main">
-        <div class="container-fluid">
+    <main class="admin-main" style="min-height:100vh; background:#f4f6fb; padding-left:260px; padding-top:32px;">
+        <div class="container" style="max-width:1200px; margin:0 auto;">
             <!-- Page Header -->
             <div class="page-header">
                 <div class="row align-items-center">
@@ -478,10 +402,10 @@ function logActivity($action, $table, $record_id, $description) {
             </div>
             
             <!-- Data Table -->
-            <div class="card">
-                <div class="card-body">
+            <div class="card shadow-sm" style="border-radius:16px; background:#fff;">
+                <div class="card-body" style="border-radius:16px;">
                     <div class="table-responsive">
-                        <table id="dataSiswaTable" class="table table-striped table-hover">
+                        <table id="dataSiswaTable" class="table table-striped table-hover align-middle">
                             <thead>
                                 <tr>
                                     <th width="30">
@@ -777,6 +701,17 @@ function logActivity($action, $table, $record_id, $description) {
                         var rowNumber = pageInfo.start + rowIdx + 1;
                         $(api.cell(rowIdx, 1).node()).html(rowNumber);
                     });
+                    // Tampilkan pesan jika data kosong
+                    var api = this.api();
+                    if (api.data().count() === 0) {
+                        if ($('#emptyDataMessage').length === 0) {
+                            $('#dataSiswaTable').parent().append('<div id="emptyDataMessage" style="text-align:center;padding:60px 0;color:#6b7280;font-size:1.1rem;"><i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i> Belum ada data siswa untuk ditampilkan</div>');
+                        } else {
+                            $('#emptyDataMessage').show();
+                        }
+                    } else {
+                        $('#emptyDataMessage').hide();
+                    }
                 }
             });
         }
@@ -1045,4 +980,4 @@ function logActivity($action, $table, $record_id, $description) {
         }
     </script>
 </body>
-</html> 
+</html>

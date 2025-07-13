@@ -73,11 +73,8 @@ foreach ($chart_data as $data) {
     $chart_values[] = $data['total'];
 }
 
-// If no data, use sample data
-if (empty($chart_labels)) {
-    $chart_labels = ['Jan 2024', 'Feb 2024', 'Mar 2024', 'Apr 2024', 'May 2024', 'Jun 2024'];
-    $chart_values = [15, 28, 42, 35, 58, 45];
-}
+// Jika tidak ada data, flag untuk pesan kosong chart
+$show_empty_chart_message = empty($chart_labels);
 ?>
 
 <?php include 'includes/header.php'; ?>
@@ -87,7 +84,7 @@ if (empty($chart_labels)) {
     <!-- Welcome Section -->
     <div class="welcome-section">
         <div class="welcome-content">
-            <h2>Selamat Datang, <?php echo htmlspecialchars($admin_username); ?>!</h2>
+            <h2>Selamat Datang, <?php echo $admin_username ? htmlspecialchars($admin_username) : 'Admin'; ?>!</h2>
             <p>Berikut adalah ringkasan data pendaftaran siswa baru MTs Ulul Albab</p>
         </div>
         <div class="welcome-actions">
@@ -170,7 +167,13 @@ if (empty($chart_labels)) {
                     </div>
                 </div>
                 <div class="chart-container">
-                    <canvas id="registrationChart"></canvas>
+                    <?php if ($show_empty_chart_message): ?>
+                        <div class="empty-data-message" style="text-align:center;padding:60px 0;color:#6b7280;font-size:1.1rem;">
+                            <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i> Belum ada data pendaftaran untuk ditampilkan
+                        </div>
+                    <?php else: ?>
+                        <canvas id="registrationChart"></canvas>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -781,15 +784,20 @@ if (empty($chart_labels)) {
     let registrationChart;
     
     function initChart() {
-        const ctx = document.getElementById('registrationChart').getContext('2d');
-        
+        const chartLabels = <?php echo json_encode($chart_labels); ?>;
+        const chartValues = <?php echo json_encode($chart_values); ?>;
+        const chartContainer = document.getElementById('registrationChart');
+        if (!chartContainer || chartLabels.length === 0) {
+            return;
+        }
+        const ctx = chartContainer.getContext('2d');
         registrationChart = new Chart(ctx, {
             type: chartType,
             data: {
-                labels: <?php echo json_encode($chart_labels); ?>,
+                labels: chartLabels,
                 datasets: [{
                     label: 'Jumlah Pendaftar',
-                    data: <?php echo json_encode($chart_values); ?>,
+                    data: chartValues,
                     backgroundColor: 'rgba(102, 126, 234, 0.2)',
                     borderColor: 'rgba(102, 126, 234, 1)',
                     borderWidth: 2,

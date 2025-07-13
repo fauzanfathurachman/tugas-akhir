@@ -1,6 +1,6 @@
 <?php
 require_once '../config/database.php';
-require_once 'auth_check.php';
+// Tidak perlu cek login, langsung izinkan akses (untuk demo/tugas kecil)
 
 if (!isset($_GET['student_id']) || empty($_GET['student_id'])) {
     die('ID siswa tidak valid');
